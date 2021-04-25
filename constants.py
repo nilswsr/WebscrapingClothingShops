@@ -42,7 +42,7 @@ HM_C_COLOR = 'product-input-label'
 HM_C_IMG = 'product-detail-thumbnail-image'
 HM_ID_REVIEW = 'js-review-heading'
 HM_C_RATING = 'star-average-number'
-HM_C_PRICE = 'price-value'
+HM_C_PRICE = 'ProductPrice-module--productItemPrice__2rpyB'
 
 CURRENCIES = {'AD': 'EUR', 'AE': 'AED', 'AF': 'AFN', 'AG': 'XCD', 'AI': 'XCD', 'AL': 'ALL', 'AM': 'AMD', 'AO': 'AOA',
               'AQ': '', 'AR': 'ARS', 'AS': 'USD', 'AT': 'EUR', 'AU': 'AUD', 'AW': 'AWG', 'AX': 'EUR', 'AZ': 'AZN',

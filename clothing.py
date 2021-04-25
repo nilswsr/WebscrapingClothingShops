@@ -1,25 +1,26 @@
-from requests_html import HTMLSession
+import requests
+from selenium import webdriver
 import re
 import constants
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+import json
+
 
 
 class ZalandoScraping:
     def __init__(self, url):
         self.url = url
-        self.text = ""
-        self.__fetch_page()
+        self.text = self.__fetch_page(self.url)
         self.soup = BeautifulSoup(self.text, 'html.parser')
 
     def __fetch_page(self):
-        session = HTMLSession()
+        session = requests.Session()
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                           "Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
-        session.set_header(headers)
-        session.visit(self.url)
-        self.text = session.body()
+        response = session.get(self.url, headers=headers)
+        return response.text
 
     def __get_title(self):
         return self.soup.find("h1", {"class": constants.ZA_C_TITLE}).text
@@ -103,20 +104,19 @@ class ZalandoScraping:
 class HMScraping:
     def __init__(self, url):
         self.url = url
-        self.text = ""
-        self.__fetch_page()
+        self.product_details = self.__fetch_page()
         self.soup = BeautifulSoup(self.text, 'html.parser')
 
     def __fetch_page(self):
-        session = requests.Session()
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"}
-        req = session.get(url=self.url, headers=headers)
-        if req.status_code != 200:
-            return False
-        else:
-            self.text = req.text
+        driver = webdriver.Firefox()
+        driver.get(self.url)
+        html = driver.execute_script("return document.documentElement.outerHTML")
+        ja = driver.execute_script("return hm.product")
+        print(ja)
+        test = driver.execute_script("return productArticleDetails")
+        print(json.dumps(test, indent=2, ensure_ascii=False))
+        driver.close()
+        return test
 
     def __get_title(self):
         return self.soup.find("h1", {"class": constants.HM_C_TITLE}).text
@@ -126,7 +126,9 @@ class HMScraping:
         return constants.CURRENCIES[country]
 
     def __get_price(self):
-        value = re.findall("[0-9]+(?:.|,)[0-9]+", str(self.soup.find("span", {"class": constants.HM_C_PRICE}).text))
+        price_div = self.soup.find("div", {"class": "ProductPrice-module--productItemPrice__2rpyB"})
+        print(self.soup.find("section", {"class": "name-price"}))
+        value = re.findall("[0-9]+(?:.|,)[0-9]+", str(price_div.find("span").text))
         return value, self.__get_currency()
 
     def __get_color(self):
@@ -145,8 +147,9 @@ class HMScraping:
         return review_count, rating
         """
         print(self.soup.find("div", {"class": "sticky-footer"}))
-        print(self.soup.find("span", {"class": "reviews-number"}))
-        review_count = re.findall(r"\(\d+\)", str(self.soup.find("span", {"class": "reviews-number"}).text))[0][1:-1]
+        print(self.soup.find_all("h2", {"id": "js-review-heading"}))
+        review_span = self.soup.find_all("h2", {"id": "js-review-heading"})
+        # review_count = re.findall(r"\(\d+\)", str(self.soup.find("span", {"class": "reviews-number"}).text))[0][1:-1]
         if not review_count:
             return [0, "NaN"]
         rating = self.soup.find("div", {"class": constants.HM_C_RATING})
