@@ -1,7 +1,9 @@
 import json
-from clothing import ZalandoScraping, HMScraping
+from Zalando import ZalandoScraping
+from HM import HMScraping
 
-"""f
+
+"""
 zalando_item = ZalandoScraping("https://www.zalando.de/bronx-jaxstar-schnuerstiefel-cappuccino-br111a07a-b11.html")
 zalando_data = zalando_item.get_data()
 zalando_json = json.dumps(zalando_data, indent=2, ensure_ascii=False)

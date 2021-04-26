@@ -1,17 +1,14 @@
 import requests
-from selenium import webdriver
 import re
 import constants
-from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-import json
+from bs4 import BeautifulSoup
 
 
-
-class ZalandoScraping2:
+class ZalandoScraping:
     def __init__(self, url):
         self.url = url
-        self.text = self.__fetch_page(self.url)
+        self.text = self.__fetch_page()
         self.soup = BeautifulSoup(self.text, 'html.parser')
 
     def __fetch_page(self):
@@ -99,67 +96,3 @@ class ZalandoScraping2:
         return {"title": title, "brand": brand, "price": price, "currency": currency, "color": color,
                 "condition": condition, "review_count": review_count, "rating": rating,
                 "details": details, "images": images}
-
-
-class HMScraping:
-    def __init__(self, url):
-        self.url = url
-        self.product_details = self.__fetch_page()
-        self.soup = BeautifulSoup(self.text, 'html.parser')
-
-    def __fetch_page(self):
-        driver = webdriver.Firefox()
-        driver.get(self.url)
-        #html = driver.execute_script("return document.documentElement.outerHTML")
-        product_data = driver.execute_script("return productArticleDetails[hm.product.getArticleId()]")
-        #print(json.dumps(test, indent=2, ensure_ascii=False))
-        driver.close()
-        return product_data
-
-    def __get_title(self):
-        return self.soup.find("h1", {"class": constants.HM_C_TITLE}).text
-
-    def __get_currency(self):
-        country = self.soup.find("html")["lang"].split("-")[-1]
-        return constants.CURRENCIES[country]
-
-    def __get_price(self):
-        price_div = self.soup.find("div", {"class": "ProductPrice-module--productItemPrice__2rpyB"})
-        print(self.soup.find("section", {"class": "name-price"}))
-        value = re.findall("[0-9]+(?:.|,)[0-9]+", str(price_div.find("span").text))
-        return value, self.__get_currency()
-
-    def __get_color(self):
-        return self.soup.find("h3", {"class": constants.HM_C_COLOR}).text
-
-    def __get_images(self):
-        return [x["src"] for x in self.soup.find_all("img", {"class": constants.HM_C_IMG})]
-
-    def __get_reviews(self):
-        """
-        print(self.soup.find("h2", {"id": constants.HM_ID_REVIEW}).text)
-        review_count = re.findall(r"\(\d+\)", str(self.soup.find("h2", {"id": constants.HM_ID_REVIEW}).text))[0][1:-1]
-        if not review_count:
-            return [0, "NaN"]
-        rating = self.soup.find("div", {"class": constants.HM_C_RATING})
-        return review_count, rating
-        """
-        print(self.soup.find("div", {"class": "sticky-footer"}))
-        print(self.soup.find_all("h2", {"id": "js-review-heading"}))
-        review_span = self.soup.find_all("h2", {"id": "js-review-heading"})
-        review_count = re.findall(r"\(\d+\)", str(self.soup.find("span", {"class": "reviews-number"}).text))[0][1:-1]
-        if not review_count:
-            return [0, "NaN"]
-        rating = self.soup.find("div", {"class": constants.HM_C_RATING})
-        return review_count, rating
-
-    def get_data(self):
-        title = self.__get_title()
-        brand = "H&M"
-        price, currency = self.__get_price()
-        color = self.__get_color()
-        condition = "new"
-        review_count, rating = self.__get_reviews()
-        images = self.__get_images()
-        return {"title": title, "brand": brand, "price": price, "currency": currency, "color": color,
-                "condition": condition, "review_count": review_count, "rating": rating, "images": images}
