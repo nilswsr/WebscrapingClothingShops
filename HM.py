@@ -1,8 +1,10 @@
 import constants
+import re
+import time
 import json
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
-
 
 
 class HMScraping:
@@ -16,8 +18,7 @@ class HMScraping:
         driver.get(self.url)
         html = driver.execute_script("return document.documentElement.outerHTML")
         product_details = driver.execute_script("return productArticleDetails[hm.product.getArticleId()]")
-        print(driver.execute_script("return [reviewsLabel]"))
-        #print(json.dumps(test, indent=2, ensure_ascii=False))
+        #print(json.dumps(ja, indent=2, ensure_ascii=False))
         driver.close()
         return html, product_details
 
@@ -29,8 +30,7 @@ class HMScraping:
         return constants.CURRENCIES[country]
 
     def __get_price(self):
-        value = float(self.product_details["whitePriceValue"])
-        return value, self.__get_currency()
+        return float(self.product_details["whitePriceValue"])
 
     def __get_color(self):
         return self.product_details["name"]
@@ -38,31 +38,15 @@ class HMScraping:
     def __get_images(self):
         return [x["image"] for x in self.product_details["images"]]
 
-    def __get_reviews(self):
-        """
-        print(self.soup.find("h2", {"id": constants.HM_ID_REVIEW}).text)
-        review_count = re.findall(r"\(\d+\)", str(self.soup.find("h2", {"id": constants.HM_ID_REVIEW}).text))[0][1:-1]
-        if not review_count:
-            return [0, "NaN"]
-        rating = self.soup.find("div", {"class": constants.HM_C_RATING})
-        return review_count, rating
-        """
-        print(self.soup.find("div", {"class": "sticky-footer"}))
-        print(self.soup.find_all("h2", {"id": "js-review-heading"}))
-        review_span = self.soup.find_all("h2", {"id": "js-review-heading"})
-        review_count = re.findall(r"\(\d+\)", str(self.soup.find("span", {"class": "reviews-number"}).text))[0][1:-1]
-        if not review_count:
-            return [0, "NaN"]
-        rating = self.soup.find("div", {"class": constants.HM_C_RATING})
-        return review_count, rating
+    def __get_description(self):
+        return self.soup.find("p", {"class": "pdp-description-text"}).text
 
     def get_data(self):
         title = self.__get_title()
-        brand = "H&M"
-        price, currency = self.__get_price()
+        price, currency = self.__get_price(), self.__get_currency()
         color = self.__get_color()
-        condition = "new"
-        review_count, rating = self.__get_reviews()
+        description = self.__get_description()
         images = self.__get_images()
-        return {"title": title, "brand": brand, "price": price, "currency": currency, "color": color,
-                "condition": condition, "review_count": review_count, "rating": rating, "images": images}
+        return {"title": title, "brand": "H&M", "price": price, "currency": currency, "color": color,
+                "description": description, "condition": "new", "reviews": {"review_count": "-", "rating": "-"},
+                "images": images}
