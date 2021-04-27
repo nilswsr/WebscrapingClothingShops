@@ -32,6 +32,9 @@ class ZalandoScraping:
     def __get_color(self):
         return self.product_data["color"]
 
+    def __get_description(self):
+        return None
+
     def __get_price(self):
         current_price = self.product_data["units"][0]["displayPrice"]["price"]["value"]
         original_price = self.product_data["units"][0]["displayPrice"]["originalPrice"]["value"]
@@ -55,20 +58,27 @@ class ZalandoScraping:
         color = self.__get_color()
         category = self.__get_category()
         target_gender = self.__get_target_gender()
+        description = self.__get_description()
         current_price, original_price, discounted = self.__get_price()
         currency = self.__get_currency()
         images = self.__get_images()
+        review_count, avrg_rating = self.__get_reviews()
         return {"articleId": article_id,
                 "title": title,
                 "brand": brand,
                 "color": color,
                 "category": category,
                 "targetGender": target_gender,
+                "description": description,
                 "price": {
                     "currentPrice": current_price,
                     "originalPrice": original_price,
                     "isDiscounted": discounted
                     },
                 "currency": currency,
-                "images": images
+                "images": images,
+                "reviews": {
+                    "reviewCount": review_count,
+                    "averageRating": avrg_rating
+                }
                 }
