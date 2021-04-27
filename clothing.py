@@ -1,4 +1,5 @@
 import json
+import time
 from selenium import webdriver
 
 
@@ -41,7 +42,7 @@ class ZalandoScraping:
         self.product_data = self.__fetch_page()
 
     def __fetch_page(self):
-        driver = webdriver.Firefox()
+        driver = webdriver.Chrome()
         driver.get(self.url)
         product_data = driver.execute_script("return document.getElementById('z-vegas-pdp-props').textContent")
         driver.close()
@@ -94,7 +95,7 @@ class HMScraping:
         self.product_data, self.product_details = self.__fetch_page()
 
     def __fetch_page(self):
-        driver = webdriver.Firefox()
+        driver = webdriver.Chrome()
         driver.get(self.url)
         product_data = driver.execute_script("return document.getElementById('product-schema').textContent")
         product_details = driver.execute_script("return productArticleDetails[hm.product.getArticleId()]")
@@ -133,6 +134,62 @@ class HMScraping:
 
     def get_images(self):
         return [x["image"] for x in self.product_details["images"]]
+
+    def get_reviews(self):
+        return None, None
+
+    def get_data(self):
+        return get_data_main(self)
+
+
+class ASOSScraping:
+    def __init__(self, url):
+        self.url = url
+        self.product_data = self.__fetch_page()
+
+    def __fetch_page(self):
+        driver = webdriver.Chrome()
+        driver.get(self.url)
+        product_data = json.loads(driver.execute_script("return JSON.stringify(window.asos.pdp)"))
+        driver.close()
+        return product_data
+
+    def get_article_id(self):
+        return self.product_data["config"]["product"]["id"]
+
+    def get_title(self):
+        return self.product_data["config"]["product"]["name"]
+
+    def get_brand(self):
+        return self.product_data["config"]["product"]["brandName"]
+
+    def get_category(self):
+        return self.product_data["config"]["product"]["productType"]["name"]
+
+    def get_target_gender(self):
+        return self.product_data["config"]["product"]["gender"]
+
+    def get_color(self):
+        return self.product_data["config"]["product"]["variants"][0]["colour"]
+
+    def get_description(self):
+        return None
+
+    def get_price(self):
+        current_price = float(self.product_data["stockPrice"][0]["productPrice"]["current"]["value"])
+        original_price = self.product_data["stockPrice"][0]["productPrice"]["rrp"]["value"]
+        if original_price:
+            original_price = float(original_price)
+        else:
+            original_price = current_price
+        discounted = self.product_data["stockPrice"][0]["productPrice"]["isOutletPrice"]
+        return current_price, original_price, discounted
+
+    def get_currency(self):
+        return self.product_data["stockPrice"][0]["productPrice"]["currency"]
+
+    def get_images(self):
+        return [x["url"] for x in self.product_data["config"]["product"]["images"]]
 
     def get_reviews(self):
         return None, None
