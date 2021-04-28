@@ -1,7 +1,7 @@
 # WebscrapingClothingShops
 
 WebscrapingClothingShops is Python project to scrape product data of Online Clothing Stores.  
-Currently the online shops Zalando, H&M, ASOS, SheIn and Revolve are supported.
+The online shops Zalando, H&M, ASOS, SheIn and Revolve are currently supported.
 
 ## Requirements
 
