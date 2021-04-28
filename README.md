@@ -6,7 +6,7 @@ The online shops Zalando, H&M, ASOS, SheIn and Revolve are currently supported.
 ## Requirements
 
 Selenium WebDriver has to be installed. A detailed description on how to install Selenium can be found [here](https://selenium-python.readthedocs.io/installation.html).  
-Furthermore a driver, e.g. chromedriver or geckodriver, has to be installed and has to be in PATH. A guide for this process can be found [here](https://www.selenium.dev/documentation/en/webdriver/driver_requirements/).
+Furthermore a driver, e.g. chromedriver or geckodriver, has to be installed and has to be in PATH. A guide for this process can be found [here](https://www.selenium.dev/documentation/en/webdriver/driver_requirements/). 
 
 ## Usage
 
